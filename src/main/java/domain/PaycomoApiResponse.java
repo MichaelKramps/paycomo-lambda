@@ -1,11 +1,13 @@
 package domain;
 
 public class PaycomoApiResponse {
-    private String message;
+    String message;
 
     public PaycomoApiResponse(String message){
         this.message = message;
     }
+
+    public PaycomoApiResponse(){}
 
     public String getMessage() {
         return message;

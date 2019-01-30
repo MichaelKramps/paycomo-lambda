@@ -1,11 +1,13 @@
 package domain;
 
 public class PaycomoApiRequest {
-    private String message;
+    String message;
 
     public PaycomoApiRequest(String message){
         this.message = message;
     }
+
+    public PaycomoApiRequest(){}
 
     public String getMessage() {
         return message;
