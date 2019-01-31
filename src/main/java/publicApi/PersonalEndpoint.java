@@ -7,6 +7,6 @@ import domain.PaycomoApiResponse;
 
 public class PersonalEndpoint implements RequestHandler<PaycomoApiRequest, PaycomoApiResponse> {
     public PaycomoApiResponse handleRequest(PaycomoApiRequest request, Context context) {
-        return new PaycomoApiResponse(request.getMessage());
+        return null;
     }
 }

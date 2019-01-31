@@ -1,19 +1,29 @@
 package domain;
 
 public class PaycomoApiRequest {
-    String message;
+    String publicApiKey;
+    float amount;
 
-    public PaycomoApiRequest(String message){
-        this.message = message;
+    public float getAmount() {
+        return amount;
+    }
+
+    public void setAmount(float amount) {
+        this.amount = amount;
+    }
+
+    public String getPublicApiKey() {
+        return publicApiKey;
+    }
+
+    public void setPublicApiKey(String publicApiKey) {
+        this.publicApiKey = publicApiKey;
+    }
+
+    public PaycomoApiRequest(String apiKey, float amount){
+        this.publicApiKey = apiKey;
+        this.amount = amount;
     }
 
     public PaycomoApiRequest(){}
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }
