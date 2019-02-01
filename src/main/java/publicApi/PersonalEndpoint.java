@@ -15,11 +15,14 @@ public class PersonalEndpoint extends StripeEndpoint {
 
     @Override
     protected Map<String, Object> createChargeParameters(PaycomoApiRequest request){
+        System.out.println("cardToken: " + request.getCardToken());
+        System.out.println(this.privateApiKey);
+
         Map<String, Object> params = new HashMap<>();
         params.put("amount", request.getAmount());
         params.put("currency", "usd");
         params.put("description", "Charge credited to my personal Stripe account");
-        params.put("source", request.getPublicApiKey());
+        params.put("source", request.getCardToken());
 
         return params;
     }
