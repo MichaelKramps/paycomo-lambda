@@ -15,7 +15,7 @@ import java.util.Map;
 // Although this may work out better as an interface
 
 public class StripeEndpoint implements RequestHandler<PaycomoApiRequest, PaycomoApiResponse> {
-    private String privateApiKey;
+    protected String privateApiKey;
     private PaycomoApiResponse response;
 
     public PaycomoApiResponse handleRequest(PaycomoApiRequest request, Context context) {
@@ -29,20 +29,16 @@ public class StripeEndpoint implements RequestHandler<PaycomoApiRequest, Paycomo
         return response;
     }
 
-    private void setPrivateApiKey() {
+    protected void setPrivateApiKey() {
         // this should be overridden in child classes
         // and set to the specific businesses private key
-        this.privateApiKey = "sk_test_D6guK1T3Di9EmVWlcJ8JcLOg";
+        this.privateApiKey = "";
     }
 
-    private Charge chargeCard(PaycomoApiRequest request){
+    protected Charge chargeCard(PaycomoApiRequest request){
         Stripe.apiKey = this.privateApiKey;
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("amount", request.getAmount());
-        params.put("currency", "usd");
-        params.put("description", "Example charge");
-        params.put("source", request.getPublicApiKey());
+        Map<String, Object> params = createChargeParameters(request);
 
         try {
             Charge charge = Charge.create(params);
@@ -50,6 +46,16 @@ public class StripeEndpoint implements RequestHandler<PaycomoApiRequest, Paycomo
         } catch(Exception ignored){
             return null;
         }
+    }
+
+    protected Map<String, Object> createChargeParameters(PaycomoApiRequest request){
+        Map<String, Object> params = new HashMap<>();
+        params.put("amount", request.getAmount());
+        params.put("currency", "usd");
+        params.put("description", "Default charge");
+        params.put("source", request.getPublicApiKey());
+
+        return params;
     }
 
     public String getPrivateApiKey() {
