@@ -7,10 +7,7 @@ import domain.PaycomoApiResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PersonalEndpoint
-        extends StripeEndpoint
-        implements RequestHandler<PaycomoApiRequest, PaycomoApiResponse> {
-
+public class PersonalEndpoint extends StripeEndpoint {
     @Override
     protected void setPrivateApiKey() {
         this.privateApiKey = "sk_test_D6guK1T3Di9EmVWlcJ8JcLOg";
