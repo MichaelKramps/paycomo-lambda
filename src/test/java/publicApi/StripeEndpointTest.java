@@ -5,18 +5,42 @@ import com.amazonaws.services.lambda.runtime.CognitoIdentity;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import domain.PaycomoApiRequest;
+import domain.PaycomoApiResponse;
 import org.junit.Test;
 
 public class StripeEndpointTest {
-    StripeEndpoint stripeEndpoint = new StripeEndpoint();
-
     @Test
     public void handleRequestNeverReturnsNull(){
         PaycomoApiRequest request = new PaycomoApiRequest();
-        // how to create a context?
         Context context = createContext();
 
+        StripeEndpoint stripeEndpoint = new StripeEndpoint();
+
         assert(stripeEndpoint.handleRequest(request, context) != null);
+    }
+
+    @Test
+    public void privateApiKeyIsSet(){
+        PaycomoApiRequest request = new PaycomoApiRequest();
+        Context context = createContext();
+
+        StripeEndpoint stripeEndpoint = new StripeEndpoint();
+
+        stripeEndpoint.handleRequest(request, context);
+
+        assert(stripeEndpoint.getPrivateApiKey() != null);
+    }
+
+    @Test
+    public void neverReturnsABlankResponse(){
+        PaycomoApiRequest request = new PaycomoApiRequest();
+        Context context = createContext();
+
+        StripeEndpoint stripeEndpoint = new StripeEndpoint();
+
+        PaycomoApiResponse response = stripeEndpoint.handleRequest(request, context);
+
+        assert(response.getMessage() != null);
     }
 
     private Context createContext() {
