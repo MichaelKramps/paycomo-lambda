@@ -3,20 +3,20 @@ package domain;
 public class PaycomoApiRequest {
     private String publicApiKey;
     private String cardToken;
-    private float amount;
+    private int amount;
 
-    public PaycomoApiRequest(String apiKey, float amount){
+    public PaycomoApiRequest(String apiKey, int amount){
         this.publicApiKey = apiKey;
         this.amount = amount;
     }
 
     public PaycomoApiRequest(){}
 
-    public float getAmount() {
+    public int getAmount() {
         return amount;
     }
 
-    public void setAmount(float amount) {
+    public void setAmount(int amount) {
         this.amount = amount;
     }
 
