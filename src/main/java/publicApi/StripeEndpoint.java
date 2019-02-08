@@ -48,7 +48,7 @@ public class StripeEndpoint implements RequestHandler<PaycomoApiRequest, Paycomo
     }
 
     protected Charge chargeCard(PaycomoApiRequest request){
-        Stripe.apiKey = this.privateApiKey;
+        Stripe.apiKey = System.getenv("STRIPE_PRIVATE_KEY");
 
         Map<String, Object> params = createChargeParameters(request);
 
