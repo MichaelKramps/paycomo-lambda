@@ -1,8 +1,10 @@
 package publicApi;
 
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.stripe.model.Charge;
 import domain.PaycomoApiRequest;
 import domain.PaycomoApiResponse;
+import domain.PaycomoTransactionS3Request;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,5 +24,15 @@ public class PersonalEndpoint extends StripeEndpoint {
         params.put("source", request.getCardToken());
 
         return params;
+    }
+
+    @Override
+    protected PaycomoTransactionS3Request createSnsRequest(Charge charge){
+        PaycomoTransactionS3Request request = new PaycomoTransactionS3Request();
+        request.setBucketName("paycomo-transactions");
+        request.setDisplayName("yo-yo-test");
+        request.setContent("Hello, There, Mr, Robinson");
+
+        return request;
     }
 }

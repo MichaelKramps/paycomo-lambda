@@ -1,11 +1,22 @@
 package publicApi;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClient;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.sns.model.PublishResult;
 import com.stripe.Stripe;
 import com.stripe.model.Charge;
 import domain.PaycomoApiRequest;
 import domain.PaycomoApiResponse;
+import domain.PaycomoTransactionS3Request;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +37,7 @@ public class StripeEndpoint implements RequestHandler<PaycomoApiRequest, Paycomo
         } else {
             response = new PaycomoApiResponse(true, "Your payment was processed.");
         }
+        publishToSnsTopic(createSnsRequest(charge));
         return response;
     }
 
@@ -56,6 +68,36 @@ public class StripeEndpoint implements RequestHandler<PaycomoApiRequest, Paycomo
         params.put("source", request.getPublicApiKey());
 
         return params;
+    }
+
+    // Overwrite in child classes
+    protected PaycomoTransactionS3Request createSnsRequest(Charge charge){
+        return new PaycomoTransactionS3Request();
+    }
+
+    protected void publishToSnsTopic(PaycomoTransactionS3Request snsRequest){
+        String accessKeyId = System.getenv("SNS_ACCESS_KEY");
+        String secretKey = System.getenv("SNS_SECRET_KEY");
+
+        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKeyId, secretKey);
+        //create a new SNS client and set endpoint
+        AmazonSNS snsClient = AmazonSNSClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                .withRegion(Regions.US_EAST_2)
+                .build();
+
+        String topicArn = "arn:aws:sns:us-east-2:718137051114:paycomo-transactions";
+
+        //publish to an SNS topic
+        String msg = "{" +
+                "\"displayName\":\"" + snsRequest.getDisplayName() + "\"" +
+                "\"bucketName\":\"" + snsRequest.getBucketName() + "\"" +
+                "\"content\":\"" + snsRequest.getContent() + "\"" +
+                "}";
+        PublishRequest publishRequest = new PublishRequest(topicArn, msg);
+        snsClient.publish(publishRequest);
+
+        System.out.println(msg);
     }
 
     public String getPrivateApiKey() {
