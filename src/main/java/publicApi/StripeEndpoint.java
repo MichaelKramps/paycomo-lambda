@@ -82,8 +82,8 @@ public class StripeEndpoint implements RequestHandler<PaycomoApiRequest, Paycomo
 
         //publish to an SNS topic
         String msg = "{" +
-                "\"displayName\":\"" + snsRequest.getDisplayName() + "\"" +
-                "\"bucketName\":\"" + snsRequest.getBucketName() + "\"" +
+                "\"displayName\":\"" + snsRequest.getDisplayName() + "\"," +
+                "\"bucketName\":\"" + snsRequest.getBucketName() + "\"," +
                 "\"content\":\"" + snsRequest.getContent() + "\"" +
                 "}";
         PublishRequest publishRequest = new PublishRequest(topicArn, msg);
