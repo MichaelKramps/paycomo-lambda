@@ -6,6 +6,8 @@ import domain.PaycomoApiRequest;
 import domain.PaycomoApiResponse;
 import domain.PaycomoTransactionS3Request;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +28,12 @@ public class PersonalEndpoint extends StripeEndpoint {
     protected PaycomoTransactionS3Request createSnsRequest(Charge charge){
         PaycomoTransactionS3Request request = new PaycomoTransactionS3Request();
         request.setBucketName("paycomo-transactions");
-        request.setDisplayName("PersonalEndpoint-" + new Date().toString());
+        try{
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyy-mm-dd_hh:mm:ss:SSS");
+            request.setDisplayName(dateFormat.parse(new Date().toString()).toString());
+        } catch (ParseException p){
+            request.setDisplayName("dateParseError");
+        }
         request.setContent("PersonalEndpoint," + charge.getAmount());
 
         return request;
