@@ -6,15 +6,11 @@ import domain.PaycomoApiRequest;
 import domain.PaycomoApiResponse;
 import domain.PaycomoTransactionS3Request;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class PersonalEndpoint extends StripeEndpoint {
-    @Override
-    protected void setPrivateApiKey() {
-        this.privateApiKey = "sk_test_D6guK1T3Di9EmVWlcJ8JcLOg";
-    }
-
     @Override
     protected Map<String, Object> createChargeParameters(PaycomoApiRequest request){
         Map<String, Object> params = new HashMap<>();
@@ -30,8 +26,8 @@ public class PersonalEndpoint extends StripeEndpoint {
     protected PaycomoTransactionS3Request createSnsRequest(Charge charge){
         PaycomoTransactionS3Request request = new PaycomoTransactionS3Request();
         request.setBucketName("paycomo-transactions");
-        request.setDisplayName("yo-yo-test");
-        request.setContent("Hello, There, Mr, Robinson");
+        request.setDisplayName("PersonalEndpoint-" + new Date().toString());
+        request.setContent("PersonalEndpoint," + charge.getAmount());
 
         return request;
     }

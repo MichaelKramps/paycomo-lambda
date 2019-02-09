@@ -26,11 +26,9 @@ import java.util.Map;
 // Although this may work out better as an interface
 
 public class StripeEndpoint implements RequestHandler<PaycomoApiRequest, PaycomoApiResponse> {
-    protected String privateApiKey;
     private PaycomoApiResponse response;
 
     public PaycomoApiResponse handleRequest(PaycomoApiRequest request, Context context) {
-        setPrivateApiKey();
         Charge charge = chargeCard(request);
         if (charge == null){
             response = new PaycomoApiResponse(false, "There was a problem processing your payment.");
@@ -39,12 +37,6 @@ public class StripeEndpoint implements RequestHandler<PaycomoApiRequest, Paycomo
         }
         publishToSnsTopic(createSnsRequest(charge));
         return response;
-    }
-
-    protected void setPrivateApiKey() {
-        // this should be overridden in child classes
-        // and set to the specific businesses private key
-        this.privateApiKey = "";
     }
 
     protected Charge chargeCard(PaycomoApiRequest request){
@@ -98,9 +90,5 @@ public class StripeEndpoint implements RequestHandler<PaycomoApiRequest, Paycomo
         snsClient.publish(publishRequest);
 
         System.out.println(msg);
-    }
-
-    public String getPrivateApiKey() {
-        return privateApiKey;
     }
 }
