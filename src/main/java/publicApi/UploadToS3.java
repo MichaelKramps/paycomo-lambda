@@ -4,7 +4,9 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+import software.amazon.awssdk.regions.Region;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent;
@@ -12,6 +14,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.PaycomoTransactionS3Request;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,11 +46,11 @@ public class UploadToS3 implements RequestHandler<SNSEvent, String> {
         System.out.println("bucketName: " + s3Request.getBucketName());
         System.out.println(request.toString());
 
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKeyId, secretKey);
+        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKeyId, secretKey);
 
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                .withRegion(Regions.US_EAST_2)
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                .withRegion(Region.US_EAST_2)
+                .withCredentials(StaticCredentialsProvider.create(awsCreds))
                 .build();
 
         try {

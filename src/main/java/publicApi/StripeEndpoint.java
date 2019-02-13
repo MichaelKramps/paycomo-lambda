@@ -1,35 +1,27 @@
 package publicApi;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.*;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import com.amazonaws.services.sns.model.PublishRequest;
-import com.amazonaws.services.sns.model.PublishResult;
 import com.stripe.Stripe;
 import com.stripe.model.Charge;
 import domain.PaycomoApiRequest;
 import domain.PaycomoApiResponse;
 import domain.PaycomoTransactionS3Request;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 
-import java.util.HashMap;
 import java.util.Map;
 
-// Ideally I'd like all the different business endpoints to extend this class
-// That way I only need one set of tests to run
-// Although this may work out better as an interface
-
-public class StripeEndpoint implements RequestHandler<PaycomoApiRequest, PaycomoApiResponse> {
+abstract public class StripeEndpoint implements RequestHandler<APIGatewayProxyRequestEvent, PaycomoApiResponse> {
     private PaycomoApiResponse response;
 
-    public PaycomoApiResponse handleRequest(PaycomoApiRequest request, Context context) {
-        Charge charge = chargeCard(request);
+    public PaycomoApiResponse handleRequest(APIGatewayProxyRequestEvent request, Context context) {
+        String requestBody = request.getBody();
+        Charge charge = chargeCard(requestJson);
         if (charge == null){
             response = new PaycomoApiResponse(false, "There was a problem processing your payment.");
         } else {
@@ -52,30 +44,19 @@ public class StripeEndpoint implements RequestHandler<PaycomoApiRequest, Paycomo
         }
     }
 
-    protected Map<String, Object> createChargeParameters(PaycomoApiRequest request){
-        Map<String, Object> params = new HashMap<>();
-        params.put("amount", request.getAmount());
-        params.put("currency", "usd");
-        params.put("description", "Default charge");
-        params.put("source", request.getPublicApiKey());
+    abstract protected Map<String, Object> createChargeParameters(PaycomoApiRequest request);
 
-        return params;
-    }
-
-    // Overwrite in child classes
-    protected PaycomoTransactionS3Request createSnsRequest(Charge charge){
-        return new PaycomoTransactionS3Request();
-    }
+    abstract protected PaycomoTransactionS3Request createSnsRequest(Charge charge);
 
     protected void publishToSnsTopic(PaycomoTransactionS3Request snsRequest){
         String accessKeyId = System.getenv("SNS_ACCESS_KEY");
         String secretKey = System.getenv("SNS_SECRET_KEY");
 
-        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKeyId, secretKey);
+        AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKeyId, secretKey);
         //create a new SNS client and set endpoint
         AmazonSNS snsClient = AmazonSNSClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                .withRegion(Regions.US_EAST_2)
+                .withCredentials(StaticCredentialsProvider.create(awsCredentials))
+                .withRegion(Region.US_EAST_2)
                 .build();
 
         String topicArn = "arn:aws:sns:us-east-2:718137051114:paycomo-transactions";
