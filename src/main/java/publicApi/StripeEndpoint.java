@@ -2,10 +2,11 @@ package publicApi;
 
 import com.amazonaws.services.lambda.runtime.*;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.AmazonSNSClientBuilder;
-import com.amazonaws.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.SnsClientBuilder;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
 import com.stripe.Stripe;
 import com.stripe.model.Charge;
 import domain.PaycomoApiRequest;
@@ -20,8 +21,8 @@ abstract public class StripeEndpoint implements RequestHandler<APIGatewayProxyRe
     private PaycomoApiResponse response;
 
     public PaycomoApiResponse handleRequest(APIGatewayProxyRequestEvent request, Context context) {
-        String requestBody = request.getBody();
-        Charge charge = chargeCard(requestJson);
+        PaycomoApiRequest chargeRequest = getRequestBody(request);
+        Charge charge = chargeCard(chargeRequest);
         if (charge == null){
             response = new PaycomoApiResponse(false, "There was a problem processing your payment.");
         } else {
@@ -29,6 +30,17 @@ abstract public class StripeEndpoint implements RequestHandler<APIGatewayProxyRe
         }
         publishToSnsTopic(createSnsRequest(charge));
         return response;
+    }
+
+    private PaycomoApiRequest getRequestBody(APIGatewayProxyRequestEvent request) {
+        ObjectMapper mapper = new ObjectMapper();
+        PaycomoApiRequest requestBody;
+        try{
+            requestBody = mapper.readValue(request.getBody(), PaycomoApiRequest.class);
+        } catch(Exception e){
+            requestBody = new PaycomoApiRequest();
+        }
+        return requestBody;
     }
 
     protected Charge chargeCard(PaycomoApiRequest request){

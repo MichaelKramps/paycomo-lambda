@@ -16,6 +16,8 @@ dependencies {
             'com.amazonaws:aws-lambda-java-events:2.2.5',
             'software.amazon.awssdk:auth:2.4.6',
             'software.amazon.awssdk:regions:2.4.6',
+            'software.amazon.awssdk:sns:2.4.6',
+            'software.amazon.awssdk:s3:2.4.6',
 //            'org.glassfish.jersey.core:jersey-client:2.25.1',
 //            'org.glassfish.jersey.media:jersey-media-json-jackson:2.25.1',
             'com.stripe:stripe-java:4.2.0'
