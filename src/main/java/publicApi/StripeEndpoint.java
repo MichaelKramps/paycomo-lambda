@@ -66,9 +66,9 @@ abstract public class StripeEndpoint implements RequestHandler<APIGatewayProxyRe
 
         AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKeyId, secretKey);
         //create a new SNS client and set endpoint
-        AmazonSNS snsClient = AmazonSNSClientBuilder.standard()
-                .withCredentials(StaticCredentialsProvider.create(awsCredentials))
-                .withRegion(Region.US_EAST_2)
+        SnsClient snsClient = SnsClient.builder()
+                .region(Region.US_EAST_2)
+                .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
                 .build();
 
         String topicArn = "arn:aws:sns:us-east-2:718137051114:paycomo-transactions";
@@ -79,7 +79,7 @@ abstract public class StripeEndpoint implements RequestHandler<APIGatewayProxyRe
                 "\"bucketName\":\"" + snsRequest.getBucketName() + "\"," +
                 "\"content\":\"" + snsRequest.getContent() + "\"" +
                 "}";
-        PublishRequest publishRequest = new PublishRequest(topicArn, msg);
+        PublishRequest publishRequest = PublishRequest.builder().topicArn(topicArn).message(msg).build();
         snsClient.publish(publishRequest);
 
         System.out.println(msg);

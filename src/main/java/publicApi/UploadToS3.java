@@ -9,7 +9,6 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.PaycomoTransactionS3Request;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -46,13 +45,14 @@ public class UploadToS3 implements RequestHandler<SNSEvent, String> {
 
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKeyId, secretKey);
 
-        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                .withRegion(Region.US_EAST_2)
-                .withCredentials(StaticCredentialsProvider.create(awsCreds))
+        S3Client s3Client = S3Client.builder()
+                .region(Region.US_EAST_2)
+                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
                 .build();
 
         try {
             // Upload a text string as a new object.
+
             s3Client.putObject(s3Request.getBucketName(), s3Request.getDisplayName(), s3Request.getContent());
         }
         catch(AmazonServiceException e) {
