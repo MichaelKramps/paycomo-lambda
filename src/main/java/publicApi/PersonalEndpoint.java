@@ -1,9 +1,7 @@
 package publicApi;
 
-import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.stripe.model.Charge;
 import domain.PaycomoApiRequest;
-import domain.PaycomoApiResponse;
 import domain.PaycomoTransactionS3Request;
 
 import java.text.ParseException;

@@ -1,9 +1,7 @@
 package publicApi;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.SdkClientException;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -12,6 +10,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.PaycomoTransactionS3Request;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -50,24 +49,20 @@ public class UploadToS3 implements RequestHandler<SNSEvent, String> {
                 .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
                 .build();
 
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(s3Request.getBucketName())
+                .key(s3Request.getDisplayName())
+                .build();
+
         try {
             // Upload a text string as a new object.
 
-            s3Client.putObject(s3Request.getBucketName(), s3Request.getDisplayName(), s3Request.getContent());
+            s3Client.putObject(putObjectRequest, RequestBody.fromString(s3Request.getContent()));
         }
-        catch(AmazonServiceException e) {
-            // The call was transmitted successfully, but Amazon S3 couldn't process
-            // it, so it returned an error response.
+        catch(Exception e) {
             System.out.println("Amazon Service Exception: ");
             e.printStackTrace();
             return "Amazon Service Exception";
-        }
-        catch(SdkClientException e) {
-            // Amazon S3 couldn't be contacted for a response, or the client
-            // couldn't parse the response from Amazon S3.
-            System.out.println("SDK Client Exception: ");
-            e.printStackTrace();
-            return "SDK Client Exception";
         }
         return "Success";
     }
