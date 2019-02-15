@@ -26,13 +26,14 @@ public class PersonalEndpoint extends StripeEndpoint {
     protected PaycomoTransactionS3Request createSnsRequest(Charge charge){
         PaycomoTransactionS3Request request = new PaycomoTransactionS3Request();
         request.setBucketName("paycomo-transactions");
-        try{
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyy-mm-dd_hh:mm:ss:SSS");
-            request.setDisplayName(dateFormat.parse(new Date().toString()).toString());
-        } catch (ParseException p){
-            request.setDisplayName("dateParseError");
-        }
-        request.setContent("PersonalEndpoint," + charge.getAmount());
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        Date now = new Date();
+        String dateString = dateFormat.format(now);
+
+        request.setDisplayName(dateString);
+        String chargeResult = charge == null ? "Charge was unsuccessful" : charge.getAmount().toString();
+        request.setContent("PersonalEndpoint," + chargeResult);
 
         return request;
     }

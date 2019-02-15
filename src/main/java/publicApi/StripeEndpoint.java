@@ -2,6 +2,7 @@ package publicApi;
 
 import com.amazonaws.services.lambda.runtime.*;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.services.sns.SnsClient;
@@ -16,16 +17,18 @@ import software.amazon.awssdk.regions.Region;
 
 import java.util.Map;
 
-abstract public class StripeEndpoint implements RequestHandler<APIGatewayProxyRequestEvent, PaycomoApiResponse> {
-    private PaycomoApiResponse response;
+abstract public class StripeEndpoint implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+    private APIGatewayProxyResponseEvent response;
 
-    public PaycomoApiResponse handleRequest(APIGatewayProxyRequestEvent request, Context context) {
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
         PaycomoApiRequest chargeRequest = getRequestBody(request);
         Charge charge = chargeCard(chargeRequest);
         if (charge == null){
-            response = new PaycomoApiResponse(false, "There was a problem processing your payment.");
+            response = new APIGatewayProxyResponseEvent();
+            response.setBody("{\"success\":\"false\",\"message\":\"There was a problem processing your payment\"}");
         } else {
-            response = new PaycomoApiResponse(true, "Your payment was processed.");
+            response = new APIGatewayProxyResponseEvent();
+            response.setBody("{\"success\":\"true\",\"message\":\"Your payment was processed\"}");
         }
         publishToSnsTopic(createSnsRequest(charge));
         return response;
@@ -80,7 +83,5 @@ abstract public class StripeEndpoint implements RequestHandler<APIGatewayProxyRe
                 "}";
         PublishRequest publishRequest = PublishRequest.builder().topicArn(topicArn).message(msg).build();
         snsClient.publish(publishRequest);
-
-        System.out.println(msg);
     }
 }

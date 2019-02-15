@@ -12,7 +12,6 @@ import domain.PaycomoTransactionS3Request;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -30,13 +29,8 @@ public class UploadToS3 implements RequestHandler<SNSEvent, String> {
             s3Request = new PaycomoTransactionS3Request();
             s3Request.setBucketName("paycomo-transactions");
             s3Request.setContent("There was a problem parsing the SNS object");
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyy-mm-dd_hh:mm:ss:SSS");
-            try{
-                s3Request.setDisplayName("s3error-" + dateFormat.parse(new Date().toString()));
-            } catch (ParseException p){
-                s3Request.setDisplayName("dateParseError");
-                s3Request.setContent("There was a problem parsing the SNS object and parsing the Date");
-            }
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+            s3Request.setDisplayName(dateFormat.format(new Date()));
         }
 
         System.out.println("bucketName: " + s3Request.getBucketName());
@@ -55,8 +49,6 @@ public class UploadToS3 implements RequestHandler<SNSEvent, String> {
                 .build();
 
         try {
-            // Upload a text string as a new object.
-
             s3Client.putObject(putObjectRequest, RequestBody.fromString(s3Request.getContent()));
         }
         catch(Exception e) {
