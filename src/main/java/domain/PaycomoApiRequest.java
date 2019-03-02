@@ -3,6 +3,7 @@ package domain;
 public class PaycomoApiRequest {
     private String publicApiKey;
     private String cardToken;
+    private String email;
     private int amount;
 
     public PaycomoApiRequest(String apiKey, int amount){
@@ -34,5 +35,13 @@ public class PaycomoApiRequest {
 
     public void setCardToken(String cardToken) {
         this.cardToken = cardToken;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

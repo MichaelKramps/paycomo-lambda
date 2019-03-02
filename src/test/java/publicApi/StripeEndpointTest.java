@@ -15,13 +15,10 @@ public class StripeEndpointTest {
     @Test
     public void dateTest(){
         try {
-            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");//dd/MM/yyyy
+            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss:SSS");
             Date now = new Date();
             String strDate = sdfDate.format(now);
             System.out.println(strDate);
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss.SSS");
-//            String dateString = dateFormat.parse(new Date().toString()).toString();
-//            System.out.println(dateString);
         } catch(Exception e){
             System.out.println("what?");
         }

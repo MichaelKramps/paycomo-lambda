@@ -29,7 +29,7 @@ public class UploadToS3 implements RequestHandler<SNSEvent, String> {
             s3Request = new PaycomoTransactionS3Request();
             s3Request.setBucketName("paycomo-transactions");
             s3Request.setContent("There was a problem parsing the SNS object");
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss:SSS");
             s3Request.setDisplayName(dateFormat.format(new Date()));
         }
 

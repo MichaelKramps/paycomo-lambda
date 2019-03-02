@@ -17,6 +17,7 @@ public class PersonalEndpoint extends StripeEndpoint {
         params.put("amount", request.getAmount());
         params.put("currency", "usd");
         params.put("description", "Charge credited to my personal Stripe account");
+        params.put("receipt_email", request.getEmail());
         params.put("source", request.getCardToken());
 
         return params;
@@ -27,7 +28,7 @@ public class PersonalEndpoint extends StripeEndpoint {
         PaycomoTransactionS3Request request = new PaycomoTransactionS3Request();
         request.setBucketName("paycomo-transactions");
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss:SSS");
         Date now = new Date();
         String dateString = dateFormat.format(now);
 
